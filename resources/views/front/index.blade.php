@@ -64,101 +64,19 @@
 
     <!-- Floating Cart Bar -->
     <div x-show="cart.length > 0" x-transition.translate.y.duration.500ms class="fixed bottom-0 mt-5 inset-x-0 w-full sm:mx-auto max-w-4xl lg:max-w-4xl xl:max-w-6xl z-40 p-4" style="display: none;">
-        <div class="bg-gray-900 rounded-full shadow-2xl p-4 flex items-center justify-between text-white cursor-pointer hover:bg-gray-800 transition-colors" @click="isCheckoutOpen = true">
+        <div class="bg-gray-900 rounded-full shadow-2xl p-4 flex items-center justify-between text-white cursor-pointer hover:bg-gray-800 transition-colors" @click="proceedToCheckout()">
             <div class="flex items-center">
                 <div class="bg-orange-500 w-10 h-10 rounded-full flex items-center justify-center font-bold relative">
                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                    <span x-text="totalItems" class="absolute -top-1 -right-1 bg-red-500 text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none"></span>
+                    <span x-text="totalItems" class="absolute -top-1 -right-1 bg-red-500 text-xs w-5 h-5 flex items-center justify-center rounded-full leading-none shadow-sm"></span>
                 </div>
                 <div class="ml-4">
                     <p class="text-xs text-gray-400 font-medium">Total Tagihan</p>
                     <p class="font-bold text-lg leading-none" x-text="'Rp ' + formatRupiah(totalPrice)"></p>
                 </div>
             </div>
-            <div class="font-semibold px-4 flex items-center gap-2">
-                Checkout <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-            </div>
-        </div>
-    </div>
-
-    <!-- Checkout Modal / Offcanvas -->
-    <div x-show="isCheckoutOpen" class="fixed inset-0 z-50 bg-gray-900 bg-opacity-70 flex items-end sm:items-center justify-center lg:p-4" style="display: none;">
-        <div x-show="isCheckoutOpen" x-transition.opacity.duration.300ms class="absolute inset-0" @click="isCheckoutOpen = false"></div>
-        <div x-show="isCheckoutOpen" x-transition.translate.y.duration.400ms class="bg-white w-full sm:w-full sm:max-w-lg rounded-t-3xl sm:rounded-2xl h-[90vh] sm:h-auto sm:max-h-[85vh] relative z-10 flex flex-col shadow-2xl flex-grow overflow-hidden">
-            <div class="p-4 border-b flex justify-between items-center bg-white sticky top-0 z-20">
-                <h2 class="text-xl font-bold text-gray-800">Keranjang Pesanan</h2>
-                <button @click="isCheckoutOpen = false" class="text-gray-500 hover:bg-gray-100 p-2 rounded-full focus:outline-none">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-                </button>
-            </div>
-
-            <div class="overflow-y-auto flex-1 p-4 pb-[140px]">
-                <template x-if="cart.length === 0">
-                    <div class="text-center py-10">
-                        <p class="text-gray-500">Keranjang masih kosong.</p>
-                    </div>
-                </template>
-                
-                <div class="space-y-4 mb-6">
-                    <template x-for="item in cart" :key="item.id">
-                        <div class="flex justify-between items-center border-b pb-3">
-                            <div class="flex-1">
-                                <h4 class="font-semibold text-gray-800" x-text="item.name"></h4>
-                                <p class="text-orange-500 text-sm font-medium" x-text="'Rp ' + formatRupiah(item.price) + ' / item'"></p>
-                            </div>
-                            <div class="flex items-center gap-3">
-                                <button @click="decreaseQty(item.id)" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200">-</button>
-                                <span class="font-bold w-6 text-center" x-text="item.qty"></span>
-                                <button @click="increaseQty(item.id)" class="w-8 h-8 flex items-center justify-center bg-gray-100 rounded-full text-gray-600 hover:bg-gray-200">+</button>
-                            </div>
-                        </div>
-                    </template>
-                </div>
-
-                <form id="checkoutForm" action="{{ route('front.checkout') }}" method="POST" class="space-y-4">
-                    @csrf
-                    <input type="hidden" name="cart" :value="JSON.stringify(cart)">
-                    
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nama Pembeli <span class="text-red-500">*</span></label>
-                        <input type="text" name="customer_name" required class="w-full rounded-xl border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-3" placeholder="Masukkan nama Anda">
-                    </div>
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-1">Nomor HP / WhatsApp <span class="text-red-500">*</span></label>
-                        <input type="text" name="customer_phone" required class="w-full rounded-xl border-gray-300 shadow-sm focus:border-orange-500 focus:ring-orange-500 p-3" placeholder="Contoh: 08123456789">
-                    </div>
-
-                    <div>
-                        <label class="block text-sm font-semibold text-gray-700 mb-2 mt-4">Metode Pembayaran <span class="text-red-500">*</span></label>
-                        <div class="grid grid-cols-2 gap-3">
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_method" value="cashier" class="peer sr-only" required checked>
-                                <div class="rounded-xl border border-gray-200 bg-white p-4 text-center hover:bg-gray-50 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 transition-all">
-                                    <svg class="mx-auto h-6 w-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
-                                    <span class="font-medium text-sm">Bayar di Kasir</span>
-                                </div>
-                            </label>
-                            <label class="cursor-pointer">
-                                <input type="radio" name="payment_method" value="qris" class="peer sr-only" required>
-                                <div class="rounded-xl border border-gray-200 bg-white p-4 text-center hover:bg-gray-50 peer-checked:border-orange-500 peer-checked:bg-orange-50 peer-checked:text-orange-600 transition-all">
-                                    <svg class="mx-auto h-6 w-6 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"></path></svg>
-                                    <span class="font-medium text-sm">QRIS</span>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-                </form>
-            </div>
-
-            <!-- Footer Checkout button sticky -->
-            <div class="bg-white border-t p-4 absolute bottom-0 inset-x-0 w-full z-30 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)]">
-                <div class="flex justify-between items-center mb-3">
-                    <span class="text-gray-600 font-medium text-sm sm:text-base">Total Pembayaran</span>
-                    <span class="text-xl sm:text-2xl font-bold text-orange-600 leading-none" x-text="'Rp ' + formatRupiah(totalPrice)"></span>
-                </div>
-                <button type="submit" form="checkoutForm" class="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 sm:py-4 px-4 rounded-xl shadow-lg transition-colors flex justify-center items-center gap-2" :disabled="cart.length === 0">
-                    Selesaikan Pesanan <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-                </button>
+            <div class="font-bold px-5 bg-orange-500 hover:bg-orange-600 transition-colors py-2 rounded-full flex items-center gap-2 shadow-sm">
+                Lanjut Checkout <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M9 5l7 7-7 7"></path></svg>
             </div>
         </div>
     </div>
@@ -169,11 +87,19 @@ function cartSystem() {
     return {
         activeCategory: {{ $categories->first()->id ?? 'null' }},
         cart: [],
-        isCheckoutOpen: false,
         init() {
-            // Can persist using localStorage if wanted
-            // const stored = localStorage.getItem('cart');
-            // if(stored) this.cart = JSON.parse(stored);
+            // Restore from local storage on load
+            const stored = localStorage.getItem('eMenuCart');
+            if(stored) {
+                try {
+                    this.cart = JSON.parse(stored);
+                } catch(e) {
+                    this.cart = [];
+                }
+            }
+        },
+        saveCart() {
+            localStorage.setItem('eMenuCart', JSON.stringify(this.cart));
         },
         addToCart(id, name, price) {
             const index = this.cart.findIndex(item => item.id === id);
@@ -182,21 +108,11 @@ function cartSystem() {
             } else {
                 this.cart.push({ id, name, price, qty: 1 });
             }
+            this.saveCart();
         },
-        increaseQty(id) {
-            const index = this.cart.findIndex(item => item.id === id);
-            if(index > -1) this.cart[index].qty++;
-        },
-        decreaseQty(id) {
-            const index = this.cart.findIndex(item => item.id === id);
-            if(index > -1) {
-                if(this.cart[index].qty > 1) {
-                    this.cart[index].qty--;
-                } else {
-                    this.cart.splice(index, 1);
-                }
-            }
-            if(this.cart.length === 0) this.isCheckoutOpen = false;
+        proceedToCheckout() {
+            this.saveCart();
+            window.location.href = "{{ route('front.checkout.form') }}";
         },
         get totalItems() {
             return this.cart.reduce((total, item) => total + item.qty, 0);

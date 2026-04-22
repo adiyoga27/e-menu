@@ -60,4 +60,9 @@
         </a>
     </div>
 </div>
+
+<script>
+    // Clear cart upon successful order
+    localStorage.removeItem('eMenuCart');
+</script>
 @endsection

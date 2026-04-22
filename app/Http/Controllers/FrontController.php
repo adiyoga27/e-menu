@@ -21,6 +21,11 @@ class FrontController extends Controller
         return view('front.index', compact('categories'));
     }
 
+    public function checkoutForm()
+    {
+        return view('front.checkout');
+    }
+
     public function checkout(Request $request)
     {
         $request->validate([

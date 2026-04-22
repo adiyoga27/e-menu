@@ -48,10 +48,9 @@
 </style>
 
 <div id="sidebar-wrapper">
-    <div class="sidebar-heading d-flex align-items-center">
-        <a href="{{ route('dashboard') }}" class="text-decoration-none d-flex align-items-center text-dark">
-            <x-application-logo style="height: 32px; width: auto;" class="me-2 text-primary" />
-            <span class="fw-bold">Admin Panel</span>
+    <div class="sidebar-heading d-flex flex-column align-items-center bg-light">
+        <a href="{{ route('dashboard') }}" class="text-decoration-none d-flex flex-column align-items-center text-dark text-center">
+            <img src="{{ asset('images/logo.png') }}" alt="Moody Foodielicious Logo" class="img-fluid rounded mb-2 shadow-sm" style="max-height: 80px; object-fit: contain;">
         </a>
     </div>
     

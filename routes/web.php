@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 
 // Kustomer E-Menu
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
+Route::get('/checkout', [FrontController::class, 'checkoutForm'])->name('front.checkout.form');
 Route::post('/checkout', [FrontController::class, 'checkout'])->name('front.checkout');
 Route::get('/success/{order}', [FrontController::class, 'success'])->name('front.success');
 Route::get('/payment/qris/{order}', [PaymentController::class, 'qris'])->name('payment.qris');
