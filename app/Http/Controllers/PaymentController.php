@@ -14,29 +14,76 @@ class PaymentController extends Controller
             return redirect()->away($order->payment_url);
         }
 
-        $apiKey = 'API-e99676456b8a87ac4d35a411ece85932caa51b45654754f5';
-        
-        $response = Http::withHeaders([
-            'X-API-Key' => $apiKey,
-            'Content-Type' => 'application/json'
-        ])->post('https://www.bayar.gg/api/create-payment.php', [
-            'amount' => $order->total_amount,
-            'description' => 'Pembayaran Pesanan ' . $order->order_number,
-            'customer_name' => $order->customer_name,
-            'customer_phone' => $order->customer_phone,
-            'payment_method' => 'qris',
-            'redirect_url' => route('front.success', $order->id)
-        ]);
+        // Set Midtrans Config
+        \Midtrans\Config::$serverKey = config('app.midtrans.server_key', env('MIDTRANS_SERVER_KEY'));
+        \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+        \Midtrans\Config::$isSanitized = env('MIDTRANS_IS_SANITIZED', true);
+        \Midtrans\Config::$is3ds = env('MIDTRANS_IS_3DS', true);
 
-        if ($response->successful() && isset($response['success']) && $response['success']) {
+        $params = array(
+            'transaction_details' => array(
+                'order_id' => $order->order_number,
+                'gross_amount' => $order->total_amount,
+            ),
+            'customer_details' => array(
+                'first_name' => $order->customer_name,
+                'phone' => $order->customer_phone,
+            ),
+            'callbacks' => array(
+                'finish' => route('front.success', $order->id)
+            )
+        );
+
+        try {
+            $paymentUrl = \Midtrans\Snap::createTransaction($params)->redirect_url;
+            
             $order->update([
-                'invoice_id' => $response['payment']['invoice_id'] ?? null,
-                'payment_url' => $response['payment_url'] ?? null
+                'payment_url' => $paymentUrl
             ]);
             
-            return redirect()->away($response['payment_url']);
+            return redirect()->away($paymentUrl);
+        } catch (\Exception $e) {
+            return redirect()->route('front.success', $order->id)->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
         }
+    }
 
-        return redirect()->route('front.success', $order->id)->with('error', 'Gagal membuka QRIS otomatis. Silakan bayar di kasir.');
+    public function webhook(Request $request)
+    {
+        // Set Midtrans Config
+        \Midtrans\Config::$serverKey = config('app.midtrans.server_key', env('MIDTRANS_SERVER_KEY'));
+        \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
+
+        try {
+            $notification = new \Midtrans\Notification();
+
+            $transaction = $notification->transaction_status;
+            $type = $notification->payment_type;
+            $orderId = $notification->order_id;
+            $fraud = $notification->fraud_status;
+
+            $order = Order::where('order_number', $orderId)->first();
+
+            if (!$order) {
+                return response()->json(['message' => 'Order not found'], 404);
+            }
+
+            if ($transaction == 'capture') {
+                if ($fraud == 'challenge') {
+                    // $order->update(['payment_status' => 'challenge']); // Handle challenge if needed
+                } else if ($fraud == 'accept') {
+                    $order->update(['payment_status' => 'paid']);
+                }
+            } else if ($transaction == 'settlement') {
+                $order->update(['payment_status' => 'paid']);
+            } else if ($transaction == 'pending') {
+                // $order->update(['payment_status' => 'pending']);
+            } else if ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {
+                $order->update(['payment_status' => 'unpaid']);
+            }
+
+            return response()->json(['message' => 'Wahbook processed successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+        }
     }
 }

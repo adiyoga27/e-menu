@@ -15,6 +15,7 @@ Route::get('/checkout', [FrontController::class, 'checkoutForm'])->name('front.c
 Route::post('/checkout', [FrontController::class, 'checkout'])->name('front.checkout');
 Route::get('/success/{order}', [FrontController::class, 'success'])->name('front.success');
 Route::get('/payment/qris/{order}', [PaymentController::class, 'qris'])->name('payment.qris');
+Route::post('/payment/midtrans-webhook', [PaymentController::class, 'webhook'])->name('payment.webhook');
 
 // Admin Routes
 Route::prefix('admin')->middleware(['auth', 'verified'])->group(function() {
