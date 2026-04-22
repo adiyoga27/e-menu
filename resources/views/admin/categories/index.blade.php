@@ -1,82 +1,110 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Manajemen Kategori
-        </h2>
+        {{ __('Manajemen Kategori') }}
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="row g-4">
+        <div class="col-12">
             @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
                     {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
             <!-- Add New -->
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                <form action="{{ route('admin.categories.store') }}" method="POST" class="flex items-center space-x-4">
-                    @csrf
-                    <div class="flex-1">
-                        <x-input-label for="name" value="Nama Kategori" />
-                        <x-text-input id="name" name="name" type="text" class="mt-1 block w-full" required />
-                    </div>
-                    <div class="pt-6">
-                        <x-primary-button>Tambah</x-primary-button>
-                    </div>
-                </form>
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body p-4">
+                    <form action="{{ route('admin.categories.store') }}" method="POST" class="row g-3 align-items-end">
+                        @csrf
+                        <div class="col-12 col-md">
+                            <x-input-label for="name" value="Tambah Kategori Baru" />
+                            <x-text-input id="name" name="name" type="text" placeholder="Masukkan nama kategori..." required />
+                        </div>
+                        <div class="col-12 col-md-auto">
+                            <x-primary-button class="w-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-lg me-1" viewBox="0 0 16 16">
+                                    <path fill-rule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z"/>
+                                </svg>
+                                Tambah
+                            </x-primary-button>
+                        </div>
+                    </form>
+                </div>
             </div>
 
             <!-- List -->
-            <div class="bg-white shadow-sm sm:rounded-lg overflow-x-auto">
-                <table class="min-w-full divide-y divide-gray-200">
-                    <thead class="bg-gray-50">
-                        <tr>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody class="bg-white divide-y divide-gray-200">
-                        @foreach($categories as $category)
-                        <tr x-data="{ editing: false }">
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div x-show="!editing" class="text-sm font-medium text-gray-900">{{ $category->name }}</div>
-                                <form x-show="editing" id="form-{{ $category->id }}" action="{{ route('admin.categories.update', $category) }}" method="POST" class="flex items-center space-x-2">
-                                    @csrf @method('PUT')
-                                    <x-text-input name="name" value="{{ $category->name }}" class="w-full text-sm py-1" />
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap">
-                                <div x-show="!editing">
-                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full {{ $category->is_active ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                        {{ $category->is_active ? 'Aktif' : 'Tidak Aktif' }}
-                                    </span>
-                                </div>
-                                <div x-show="editing">
-                                    <label class="inline-flex items-center">
-                                        <input type="checkbox" name="is_active" class="rounded border-gray-300 text-indigo-600 shadow-sm" {{ $category->is_active ? 'checked' : '' }}>
-                                        <span class="ml-2 text-sm text-gray-600">Aktif</span>
-                                    </label>
-                                </div>
-                            </td>
-                            <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                <div x-show="!editing" class="flex justify-end space-x-3">
-                                    <button @click="editing = true" class="text-indigo-600 hover:text-indigo-900">Edit</button>
-                                    <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Hapus kategori?');">
-                                        @csrf @method('DELETE')
-                                        <button type="submit" class="text-red-600 hover:text-red-900">Hapus</button>
-                                    </form>
-                                </div>
-                                <div x-show="editing" class="flex justify-end space-x-2">
-                                    <button type="submit" form="form-{{ $category->id }}" class="text-green-600 hover:text-green-900">Simpan</button>
-                                    <button type="button" @click="editing = false" class="text-gray-600 hover:text-gray-900">Batal</button>
-                                </div>
-                                </form>
-                            </td>
-                        </tr>
-                        @endforeach
-                    </tbody>
-                </table>
+            <div class="card border-0 shadow-sm mt-0">
+                <div class="card-header bg-white border-bottom-0 py-2">
+                    <h5 class="card-title fw-bold mb-0 text-dark">Daftar Kategori</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 datatable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 border-0">Nama Kategori</th>
+                                    <th class="px-4 py-3 border-0">Status</th>
+                                    <th class="px-4 py-3 border-0 text-end">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($categories as $category)
+                                <tr>
+                                    <td class="px-4 py-3 fw-medium text-dark">{{ $category->name }}</td>
+                                    <td class="px-4 py-3">
+                                        @if($category->is_active)
+                                            <span class="badge bg-success bg-opacity-10 text-success px-3">Aktif</span>
+                                        @else
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-3">Tidak Aktif</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <div class="d-flex justify-content-end gap-2">
+                                            <button type="button" class="btn btn-sm btn-outline-primary px-3" data-bs-toggle="modal" data-bs-target="#editModal{{ $category->id }}">
+                                                Edit
+                                            </button>
+                                            <form action="{{ route('admin.categories.destroy', $category) }}" method="POST" onsubmit="return confirm('Hapus kategori?');">
+                                                @csrf @method('DELETE')
+                                                <button type="submit" class="btn btn-sm btn-outline-danger px-3">Hapus</button>
+                                            </form>
+                                        </div>
+
+                                        <!-- Edit Modal -->
+                                        <div class="modal fade text-start" id="editModal{{ $category->id }}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content border-0 shadow">
+                                                    <form action="{{ route('admin.categories.update', $category) }}" method="POST">
+                                                        @csrf @method('PUT')
+                                                        <div class="modal-header border-bottom-0">
+                                                            <h5 class="modal-title fw-bold">Edit Kategori</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body py-4">
+                                                            <div class="mb-4">
+                                                                <x-input-label for="name{{ $category->id }}" value="Nama Kategori" />
+                                                                <x-text-input id="name{{ $category->id }}" name="name" type="text" value="{{ $category->name }}" required />
+                                                            </div>
+                                                            <div class="form-check form-switch">
+                                                                <input class="form-check-input" type="checkbox" name="is_active" id="active{{ $category->id }}" {{ $category->is_active ? 'checked' : '' }}>
+                                                                <label class="form-check-label fw-medium" for="active{{ $category->id }}">Kategori Aktif</label>
+                                                            </div>
+                                                        </div>
+                                                        <div class="modal-footer border-top-0">
+                                                            <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Batal</button>
+                                                            <x-primary-button>Simpan Perubahan</x-primary-button>
+                                                        </div>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

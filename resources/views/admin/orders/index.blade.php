@@ -1,84 +1,83 @@
 <x-app-layout>
     <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            Pesanan Masuk
-        </h2>
+        {{ __('Pesanan Masuk') }}
     </x-slot>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+    <div class="row g-4">
+        <div class="col-12">
             @if(session('success'))
-                <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4">
+                <div class="alert alert-success alert-dismissible fade show border-0 shadow-sm mb-4" role="alert">
                     {{ session('success') }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
             @endif
 
-            <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                <!-- Filter Status -->
-                <form action="{{ route('admin.orders.index') }}" method="GET" class="flex gap-4 mb-6 relative z-10 w-full sm:w-auto">
-                    <select name="status" class="rounded-md border-gray-300 sm:text-sm" onchange="this.form.submit()">
-                        <option value="">Semua Status</option>
-                        <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
-                        <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
-                    </select>
-                </form>
-
-                <div class="overflow-x-auto">
-                    <table class="min-w-full divide-y divide-gray-200">
-                        <thead class="bg-gray-50">
-                            <tr>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Antrian</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Info Order</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
-                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pembayaran</th>
-                                <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="bg-white divide-y divide-gray-200">
-                            @foreach($orders as $order)
-                            <tr>
-                                <td class="px-6 py-4 whitespace-nowrap text-2xl font-bold text-gray-900">
-                                    {{ $order->queue_number }}
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm font-bold text-gray-900">{{ $order->customer_name }}</div>
-                                    <div class="text-xs text-gray-500">{{ $order->order_number }} • {{ $order->created_at->format('H:i') }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-sm text-gray-900 font-bold">Rp {{ number_format($order->total_amount, 0, ',', '.') }}</div>
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap">
-                                    <div class="text-xs font-bold uppercase {{ $order->payment_method == 'qris' ? 'text-blue-600' : 'text-orange-600' }}">{{ $order->payment_method }}</div>
-                                    @if($order->payment_status === 'paid')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 mt-1">Lunas</span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800 mt-1">Belum Lunas</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-center">
-                                    @if($order->status === 'completed')
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Selesai</span>
-                                    @else
-                                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">Pending</span>
-                                    @endif
-                                </td>
-                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                    <a href="{{ route('admin.orders.show', $order) }}" class="text-indigo-600 hover:text-indigo-900 bg-indigo-50 px-3 py-1 rounded">Lihat Detail</a>
-                                </td>
-                            </tr>
-                            @endforeach
-                            @if($orders->isEmpty())
-                            <tr>
-                                <td colspan="6" class="px-6 py-4 text-center text-gray-500">Belum ada pesanan</td>
-                            </tr>
-                            @endif
-                        </tbody>
-                    </table>
-                    <div class="mt-4">
-                        {{ $orders->links() }}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white border-bottom-0 py-2 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title fw-bold mb-0 text-dark">Daftar Antrian</h5>
+                    <!-- Filter Status -->
+                    <form action="{{ route('admin.orders.index') }}" method="GET" class="d-flex gap-2">
+                        <select name="status" class="form-select form-select-sm shadow-sm" onchange="this.form.submit()" style="width: auto;">
+                            <option value="">Semua Status</option>
+                            <option value="pending" {{ request('status') === 'pending' ? 'selected' : '' }}>Pending</option>
+                            <option value="completed" {{ request('status') === 'completed' ? 'selected' : '' }}>Selesai</option>
+                        </select>
+                    </form>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover align-middle mb-0 datatable">
+                            <thead class="bg-light">
+                                <tr>
+                                    <th class="px-4 py-3 border-0">Antrian</th>
+                                    <th class="px-4 py-3 border-0">Info Pelanggan</th>
+                                    <th class="px-4 py-3 border-0 text-center">Total</th>
+                                    <th class="px-4 py-3 border-0 text-center">Pembayaran</th>
+                                    <th class="px-4 py-3 border-0 text-center">Status</th>
+                                    <th class="px-4 py-3 border-0 text-end">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($orders as $order)
+                                <tr>
+                                    <td class="px-4 py-3">
+                                        <span class="display-6 fw-bold text-primary">{{ $order->queue_number }}</span>
+                                    </td>
+                                    <td class="px-4 py-3">
+                                        <div class="fw-bold text-dark">{{ $order->customer_name }}</div>
+                                        <div class="small text-muted">{{ $order->order_number }} • {{ $order->created_at->format('H:i') }}</div>
+                                    </td>
+                                    <td class="px-4 py-3 text-center fw-bold text-dark">
+                                        Rp {{ number_format($order->total_amount, 0, ',', '.') }}
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        <div class="small fw-bold text-uppercase {{ $order->payment_method == 'qris' ? 'text-primary' : 'text-warning' }} mb-1">{{ $order->payment_method }}</div>
+                                        @if($order->payment_status === 'paid')
+                                            <span class="badge bg-success bg-opacity-10 text-success px-2">Lunas</span>
+                                        @else
+                                            <span class="badge bg-warning bg-opacity-10 text-warning px-2 text-dark">Belum Lunas</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-center">
+                                        @if($order->status === 'completed')
+                                            <span class="badge bg-success px-3">Selesai</span>
+                                        @else
+                                            <span class="badge bg-secondary px-3">Pending</span>
+                                        @endif
+                                    </td>
+                                    <td class="px-4 py-3 text-end">
+                                        <a href="{{ route('admin.orders.show', $order) }}" class="btn btn-sm btn-primary px-3 shadow-sm">
+                                            Detail
+                                        </a>
+                                    </td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
+                </div>
+            </div>
             </div>
         </div>
     </div>

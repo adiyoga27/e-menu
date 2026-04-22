@@ -16,7 +16,7 @@ class OrderController extends Controller
             $query->where('status', $request->status);
         }
         
-        $orders = $query->paginate(20);
+        $orders = $query->get();
         return view('admin.orders.index', compact('orders'));
     }
 
@@ -65,9 +65,31 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Status Pembayaran diupdate.');
     }
 
-    public function report()
+    public function report(Request $request)
     {
-        $orders = Order::where('status', 'completed')->latest()->get();
-        return view('admin.orders.report', compact('orders'));
+        $startDate = $request->start_date ? \Carbon\Carbon::parse($request->start_date) : now()->startOfMonth();
+        $endDate = $request->end_date ? \Carbon\Carbon::parse($request->end_date) : now()->endOfDay();
+
+        $query = Order::where('status', 'completed')
+            ->whereBetween('created_at', [$startDate, $endDate]);
+
+        $orders = (clone $query)->latest()->get();
+
+        $summary = [
+            'total_orders' => $orders->count(),
+            'total_revenue' => $orders->where('payment_status', 'paid')->sum('total_amount'),
+        ];
+
+        $dailyStats = $orders->groupBy(function($order) {
+            return $order->created_at->format('Y-m-d');
+        })->map(function($dayOrders, $date) {
+            return (object) [
+                'date' => $date,
+                'total_orders' => $dayOrders->count(),
+                'total_revenue' => $dayOrders->where('payment_status', 'paid')->sum('total_amount')
+            ];
+        })->values();
+
+        return view('admin.orders.report', compact('orders', 'startDate', 'endDate', 'summary', 'dailyStats'));
     }
 }
