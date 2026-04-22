@@ -45,13 +45,23 @@
                                     <h3 class="font-bold text-gray-800 text-lg leading-tight">{{ $menu->name }}</h3>
                                     <p class="text-xs text-gray-500 mt-1 line-clamp-2 md:line-clamp-3">{{ $menu->description }}</p>
                                 </div>
-                                <div class="flex items-center justify-between mt-3">
+                                <div class="flex items-center justify-between mt-3 h-10">
                                     <span class="font-bold text-orange-600">Rp {{ number_format($menu->price, 0, ',', '.') }}</span>
                                     
-                                    <button @click="addToCart({{ $menu->id }}, '{{ addslashes($menu->name) }}', {{ $menu->price }})" 
-                                        class="bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white rounded-full p-2 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300">
-                                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
-                                    </button>
+                                    <template x-if="getQty({{ $menu->id }}) === 0">
+                                        <button @click="addToCart({{ $menu->id }}, '{{ addslashes($menu->name) }}', {{ $menu->price }})" 
+                                            class="bg-orange-50 text-orange-500 hover:bg-orange-500 hover:text-white rounded-full p-2 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-orange-300 shadow-sm hover:shadow">
+                                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg>
+                                        </button>
+                                    </template>
+                                    
+                                    <template x-if="getQty({{ $menu->id }}) > 0">
+                                        <div class="flex items-center gap-1 bg-orange-50 rounded-full p-1 border border-orange-100 shadow-sm">
+                                            <button @click="decreaseQty({{ $menu->id }})" class="w-7 h-7 flex items-center justify-center bg-white rounded-full text-orange-600 hover:bg-orange-100 transition-colors shadow-sm focus:outline-none">-</button>
+                                            <span class="font-bold w-5 text-center text-orange-600 text-sm" x-text="getQty({{ $menu->id }})"></span>
+                                            <button @click="increaseQty({{ $menu->id }})" class="w-7 h-7 flex items-center justify-center bg-orange-500 rounded-full text-white hover:bg-orange-600 transition-colors shadow-sm focus:outline-none">+</button>
+                                        </div>
+                                    </template>
                                 </div>
                             </div>
                         </div>
@@ -113,6 +123,28 @@ function cartSystem() {
         proceedToCheckout() {
             this.saveCart();
             window.location.href = "{{ route('front.checkout.form') }}";
+        },
+        getQty(id) {
+            const item = this.cart.find(i => i.id === id);
+            return item ? item.qty : 0;
+        },
+        increaseQty(id) {
+            const index = this.cart.findIndex(item => item.id === id);
+            if(index > -1) {
+                this.cart[index].qty++;
+                this.saveCart();
+            }
+        },
+        decreaseQty(id) {
+            const index = this.cart.findIndex(item => item.id === id);
+            if(index > -1) {
+                if(this.cart[index].qty > 1) {
+                    this.cart[index].qty--;
+                } else {
+                    this.cart.splice(index, 1);
+                }
+                this.saveCart();
+            }
         },
         get totalItems() {
             return this.cart.reduce((total, item) => total + item.qty, 0);
