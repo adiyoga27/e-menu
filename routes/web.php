@@ -6,11 +6,16 @@ use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\MenuController;
 use App\Http\Controllers\Admin\OrderController;
 use App\Http\Controllers\FrontController;
+use App\Http\Controllers\TVMonitorController;
 use App\Http\Controllers\PaymentController;
 use Illuminate\Support\Facades\Route;
 
 // Kustomer E-Menu
 Route::get('/', [FrontController::class, 'index'])->name('front.index');
+
+// TV Monitor Routes
+Route::get('/tv/monitor', [TVMonitorController::class, 'index'])->name('tv.monitor');
+Route::get('/tv/queue-data', [TVMonitorController::class, 'getQueue'])->name('tv.queue');
 Route::get('/checkout', [FrontController::class, 'checkoutForm'])->name('front.checkout.form');
 Route::post('/checkout', [FrontController::class, 'checkout'])->name('front.checkout');
 Route::get('/success/{order}', [FrontController::class, 'success'])->name('front.success');

@@ -58,5 +58,27 @@
                 </div>
             </div>
         </div>
+
+        <!-- TV Monitor Quick Link -->
+        <div class="col-12 col-md-4 mt-4">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center justify-content-between mb-3">
+                        <div>
+                            <p class="text-muted small fw-bold text-uppercase mb-1">Display Monitor</p>
+                            <h2 class="h4 fw-bold mb-0 text-dark">Live TV Mode</h2>
+                        </div>
+                        <div class="bg-orange-500 bg-opacity-10 p-3 rounded-circle text-orange-500">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="currentColor" class="bi bi-display" viewBox="0 0 16 16">
+                                <path d="M0 4s0-2 2-2h12s2 0 2 2v6s0 2-2 2h-4c0 .667.333 1.333.667 2H11a.5.5 0 0 1 0 1H5a.5.5 0 0 1 0-1h.333c.334-.667.667-1.333.667-2H2s-2 0-2-2V4zm2-1a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4a1 1 0 0 0-1-1H2z"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <a href="{{ route('tv.monitor') }}" target="_blank" class="btn btn-warning w-100 fw-bold shadow-sm py-2">
+                        Buka Live Monitor TV
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
 </x-app-layout>
