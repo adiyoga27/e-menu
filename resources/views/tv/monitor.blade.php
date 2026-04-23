@@ -20,12 +20,12 @@
         <!-- Header -->
         <div class="flex justify-between items-center mb-10 bg-slate-800/50 p-6 rounded-3xl border border-slate-700 shadow-2xl">
             <div class="flex items-center gap-4">
-                <div class="bg-orange-500 p-3 rounded-2xl">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
+                <div class="bg-white p-2 rounded-2xl shadow-lg">
+                    <img src="{{ asset('images/logo.png') }}" alt="Logo" class="h-16 w-auto object-contain">
                 </div>
                 <div>
-                    <h1 class="text-4xl font-extrabold tracking-tighter">DISPLAY ANTREAN</h1>
-                    <p class="text-slate-400 font-medium">Monitoring Real-time Pesanan Pelanggan</p>
+                    <h1 class="text-4xl font-extrabold tracking-tighter uppercase">Display Antrean</h1>
+                    <p class="text-slate-400 font-medium font-bold">Moody Foodielicious</p>
                 </div>
             </div>
             <div class="text-right">
