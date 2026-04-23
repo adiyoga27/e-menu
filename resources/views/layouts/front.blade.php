@@ -7,6 +7,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="//unpkg.com/alpinejs" defer></script>
+    @yield('header')
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased font-sans">
     <div class="max-w-4xl mx-auto md:max-w-2xl lg:max-w-4xl xl:max-w-6xl bg-white min-h-screen shadow relative mt-0 sm:mt-10 mb-0 sm:mb-10 sm:rounded-xl overflow-hidden pb-32">

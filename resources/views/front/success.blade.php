@@ -1,5 +1,13 @@
 @extends('layouts.front')
 
+@section('header')
+    @if($order->payment_method === 'qris' && $order->payment_status !== 'paid')
+        <script type="text/javascript"
+                src="https://app.sandbox.midtrans.com/snap/snap.js"
+                data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+    @endif
+@endsection
+
 @section('content')
 <div class="max-w-md mx-auto bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden text-center p-8 mt-6 sm:mt-10">
     <div class="w-20 h-20 bg-green-100 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm">
@@ -64,5 +72,30 @@
 <script>
     // Clear cart upon successful order
     localStorage.removeItem('eMenuCart');
+
+    @if($order->payment_method === 'qris' && $order->payment_status !== 'paid' && $order->payment_url)
+        window.addEventListener('load', function() {
+            // Extract snap token from URL
+            const url = "{{ $order->payment_url }}";
+            const snapToken = url.split('/').pop();
+            
+            if (snapToken) {
+                window.snap.pay(snapToken, {
+                    onSuccess: function(result) {
+                        window.location.reload();
+                    },
+                    onPending: function(result) {
+                        window.location.reload();
+                    },
+                    onError: function(result) {
+                        console.error("Payment error:", result);
+                    },
+                    onClose: function() {
+                        console.log('Customer closed the popup without finishing the payment');
+                    }
+                });
+            }
+        });
+    @endif
 </script>
 @endsection
