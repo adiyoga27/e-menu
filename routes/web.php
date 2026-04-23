@@ -28,8 +28,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function() {
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
     Route::put('/orders/{order}/items', [OrderController::class, 'updateItem'])->name('admin.orders.update-item');
-    Route::put('/orders/{order}/complete', [OrderController::class, 'markCompleted'])->name('admin.orders.complete');
-    Route::put('/orders/{order}/payment', [OrderController::class, 'updatePaymentStatus'])->name('admin.orders.payment');
+    Route::put('/orders/{order}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.update-status');
 });
 
 Route::middleware('auth')->group(function () {

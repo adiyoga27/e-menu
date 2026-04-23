@@ -88,41 +88,61 @@
                 </div>
             </div>
 
-            <!-- Actions -->
-            <div class="card border-0 shadow-sm">
+            <!-- Payment Status Card -->
+            <div class="card border-0 shadow-sm mb-4">
                 <div class="card-body p-4">
-                    <h5 class="fw-bold text-dark mb-4 small text-uppercase tracking-wider">Update Status</h5>
-                    <div class="d-flex flex-wrap gap-3">
-                        @if($order->payment_status !== 'paid')
-                        <form action="{{ route('admin.orders.payment', $order) }}" method="POST">
+                    <h5 class="fw-bold text-dark mb-4 small text-uppercase tracking-wider">Status Pembayaran</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="payment_status" value="unpaid">
+                            <button type="submit" class="btn {{ $order->payment_status === 'unpaid' ? 'btn-warning' : 'btn-outline-warning' }} px-4 shadow-sm fw-bold">Belum Lunas</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
                             @csrf @method('PUT')
                             <input type="hidden" name="payment_status" value="paid">
-                            <button type="submit" class="btn btn-success px-4 shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-check-circle me-2" viewBox="0 0 16 16">
-                                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                                    <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
-                                </svg>
-                                Tandai Lunas
-                            </button>
+                            <button type="submit" class="btn {{ $order->payment_status === 'paid' ? 'btn-success' : 'btn-outline-success' }} px-4 shadow-sm fw-bold">Lunas</button>
                         </form>
-                        @endif
-
-                        @if($order->status !== 'completed')
-                        <form action="{{ route('admin.orders.complete', $order) }}" method="POST">
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
                             @csrf @method('PUT')
-                            <button type="submit" class="btn btn-primary px-4 shadow-sm">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cup-hot me-2" viewBox="0 0 16 16">
-                                    <path d="M.5 11a.5.5 0 0 0 0 1h11a.5.5 0 0 0 0-1H.5zm0-4a.5.5 0 0 0 0 1h9a.5.5 0 0 0 0-1H.5z"/>
-                                    <path d="M13 14c1.105 0 2-.895 2-2V4a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1v8c0 1.105.895 2 2 2h9zM3 4h10v7H3V4z"/>
-                                </svg>
-                                Selesaikan Pesanan
-                            </button>
+                            <input type="hidden" name="payment_status" value="cancelled">
+                            <button type="submit" class="btn {{ $order->payment_status === 'cancelled' ? 'btn-danger' : 'btn-outline-danger' }} px-4 shadow-sm fw-bold">Batal</button>
                         </form>
-                        @endif
-                        
-                        <a href="{{ route('admin.orders.index') }}" class="btn btn-light px-4 border">Kembali</a>
                     </div>
                 </div>
+            </div>
+
+            <!-- Order Status Card -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-body p-4">
+                    <h5 class="fw-bold text-dark mb-4 small text-uppercase tracking-wider">Status Pesanan</h5>
+                    <div class="d-flex flex-wrap gap-2">
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="status" value="pending">
+                            <button type="submit" class="btn {{ $order->status === 'pending' ? 'btn-secondary' : 'btn-outline-secondary' }} px-4 shadow-sm fw-bold">Menunggu</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="status" value="processing">
+                            <button type="submit" class="btn {{ $order->status === 'processing' ? 'btn-info text-white' : 'btn-outline-info' }} px-4 shadow-sm fw-bold">Proses</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="status" value="completed">
+                            <button type="submit" class="btn {{ $order->status === 'completed' ? 'btn-primary' : 'btn-outline-primary' }} px-4 shadow-sm fw-bold">Selesai</button>
+                        </form>
+                        <form action="{{ route('admin.orders.update-status', $order) }}" method="POST">
+                            @csrf @method('PUT')
+                            <input type="hidden" name="status" value="cancelled">
+                            <button type="submit" class="btn {{ $order->status === 'cancelled' ? 'btn-danger' : 'btn-outline-danger' }} px-4 shadow-sm fw-bold">Batal</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <a href="{{ route('admin.orders.index') }}" class="btn btn-light px-4 border shadow-sm"> Kembali ke Daftar</a>
             </div>
         </div>
 
@@ -163,6 +183,13 @@
                                     </svg>
                                     <span class="fw-bold">Lunas</span>
                                 </div>
+                            @elseif($order->payment_status === 'cancelled')
+                                <div class="alert alert-danger border-0 py-2 d-flex align-items-center mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill me-2" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                    <span class="fw-bold">Batal</span>
+                                </div>
                             @else
                                 <div class="alert alert-warning border-0 py-2 d-flex align-items-center mb-0">
                                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-exclamation-circle-fill me-2" viewBox="0 0 16 16">
@@ -181,6 +208,20 @@
                                         <path d="m5.354 7.146.896.897-.707.707-.897-.896a.5.5 0 1 1 .708-.708z"/>
                                     </svg>
                                     <span class="fw-bold">Selesai</span>
+                                </div>
+                            @elseif($order->status === 'processing')
+                                <div class="alert alert-info border-0 py-2 d-flex align-items-center mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-arrow-repeat me-2" viewBox="0 0 16 16">
+                                        <path d="M11.534 7h3.932a.25.25 0 0 1 .192.41l-1.966 2.36a.25.25 0 0 1-.384 0l-1.966-2.36a.25.25 0 0 1 .192-.41zm-7.134 0a.25.25 0 0 0-.192.41l1.966 2.36a.25.25 0 0 0 .384 0l1.966-2.36a.25.25 0 0 0-.192-.41H4.4zm0 1 a 1 1 0 1 0 0 2 1 1 0 0 0 0-2z"/>
+                                    </svg>
+                                    <span class="fw-bold">Proses</span>
+                                </div>
+                            @elseif($order->status === 'cancelled')
+                                <div class="alert alert-danger border-0 py-2 d-flex align-items-center mb-0">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-x-circle-fill me-2" viewBox="0 0 16 16">
+                                        <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zM5.354 4.646a.5.5 0 1 0-.708.708L7.293 8l-2.647 2.646a.5.5 0 0 0 .708.708L8 8.707l2.646 2.647a.5.5 0 0 0 .708-.708L8.707 8l2.647-2.646a.5.5 0 0 0-.708-.708L8 7.293 5.354 4.646z"/>
+                                    </svg>
+                                    <span class="fw-bold">Batal</span>
                                 </div>
                             @else
                                 <div class="alert alert-secondary border-0 py-2 d-flex align-items-center mb-0">

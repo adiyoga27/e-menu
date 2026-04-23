@@ -52,17 +52,27 @@ class OrderController extends Controller
         return redirect()->back()->with('success', 'Kuantitas pesanan diupdate. Total berubah menjadi Rp ' . number_format($newTotal, 0, ',', '.'));
     }
 
-    public function markCompleted(Order $order)
+    public function updateStatus(Request $request, Order $order)
     {
-        $order->update(['status' => 'completed']);
-        return redirect()->back()->with('success', 'Pesanan diselesaikan.');
-    }
+        $request->validate([
+            'status' => 'nullable|in:pending,processing,completed,cancelled',
+            'payment_status' => 'nullable|in:unpaid,paid,cancelled',
+        ]);
 
-    public function updatePaymentStatus(Request $request, Order $order)
-    {
-        $request->validate(['payment_status' => 'required']);
-        $order->update(['payment_status' => $request->payment_status]);
-        return redirect()->back()->with('success', 'Status Pembayaran diupdate.');
+        $data = [];
+        if ($request->has('status')) {
+            $data['status'] = $request->status;
+        }
+        if ($request->has('payment_status')) {
+            $data['payment_status'] = $request->payment_status;
+        }
+
+        if (!empty($data)) {
+            $order->update($data);
+            return redirect()->back()->with('success', 'Status pesanan diperbarui.');
+        }
+
+        return redirect()->back();
     }
 
     public function report(Request $request)

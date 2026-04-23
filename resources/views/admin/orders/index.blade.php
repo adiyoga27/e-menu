@@ -54,6 +54,8 @@
                                         <div class="small fw-bold text-uppercase {{ $order->payment_method == 'qris' ? 'text-primary' : 'text-warning' }} mb-1">{{ $order->payment_method }}</div>
                                         @if($order->payment_status === 'paid')
                                             <span class="badge bg-success bg-opacity-10 text-success px-2">Lunas</span>
+                                        @elseif($order->payment_status === 'cancelled')
+                                            <span class="badge bg-danger bg-opacity-10 text-danger px-2">Batal</span>
                                         @else
                                             <span class="badge bg-warning bg-opacity-10 text-warning px-2 text-dark">Belum Lunas</span>
                                         @endif
@@ -61,8 +63,12 @@
                                     <td class="px-4 py-3 text-center">
                                         @if($order->status === 'completed')
                                             <span class="badge bg-success px-3">Selesai</span>
+                                        @elseif($order->status === 'processing')
+                                            <span class="badge bg-info px-3">Proses</span>
+                                        @elseif($order->status === 'cancelled')
+                                            <span class="badge bg-danger px-3">Batal</span>
                                         @else
-                                            <span class="badge bg-secondary px-3">Pending</span>
+                                            <span class="badge bg-secondary px-3">Menunggu</span>
                                         @endif
                                     </td>
                                     <td class="px-4 py-3 text-end">
