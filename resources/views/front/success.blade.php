@@ -54,10 +54,10 @@
     @elseif($order->payment_method === 'qris' && $order->payment_status !== 'paid')
     <div class="border-t border-gray-100 pt-6 space-y-3">
         <p class="text-gray-600 font-medium mb-3 text-sm">Jika halaman pembayaran belum terbuka otomatis, klik tombol di bawah ini.</p>
-        <a href="{{ $order->payment_url }}" class="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
-            Bayar dengan QRIS
+        <button id="pay-button" class="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
+            Bayar Pesanan Sekarang
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
-        </a>
+        </button>
     </div>
     @endif
 
@@ -74,10 +74,9 @@
     localStorage.removeItem('eMenuCart');
 
     @if($order->payment_method === 'qris' && $order->payment_status !== 'paid' && $order->payment_url)
-        window.addEventListener('load', function() {
-            // Extract snap token from URL
+        function triggerSnap() {
             const url = "{{ $order->payment_url }}";
-            const snapToken = url.split('/').pop();
+            const snapToken = url.split('/').pop().split('?')[0]; // Ambil token murni
             
             if (snapToken) {
                 window.snap.pay(snapToken, {
@@ -88,11 +87,23 @@
                         window.location.reload();
                     },
                     onError: function(result) {
-                        console.error("Payment error:", result);
+                        alert("Terjadi kesalahan saat memproses pembayaran.");
                     },
                     onClose: function() {
-                        console.log('Customer closed the popup without finishing the payment');
+                        console.log('Customer closed the popup');
                     }
+                });
+            }
+        }
+
+        window.addEventListener('load', function() {
+            triggerSnap();
+            
+            const payButton = document.getElementById('pay-button');
+            if(payButton) {
+                payButton.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    triggerSnap();
                 });
             }
         });
