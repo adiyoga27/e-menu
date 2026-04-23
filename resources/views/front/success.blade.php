@@ -3,7 +3,7 @@
 @section('header')
     @if($order->payment_method === 'qris' && $order->payment_status !== 'paid')
         <script type="text/javascript"
-                src="https://app.sandbox.midtrans.com/snap/snap.js"
+                src="https://app.midtrans.com/snap/snap.js"
                 data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
     @endif
 @endsection
