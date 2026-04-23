@@ -54,7 +54,7 @@
     @elseif($order->payment_method === 'qris' && $order->payment_status !== 'paid')
     <div class="border-t border-gray-100 pt-6 space-y-3">
         <p class="text-gray-600 font-medium mb-3 text-sm">Jika halaman pembayaran belum terbuka otomatis, klik tombol di bawah ini.</p>
-        <button id="pay-button" class="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
+        <button type="button" id="pay-button" class="flex justify-center items-center gap-2 bg-orange-500 hover:bg-orange-600 text-white font-bold py-3 px-6 rounded-xl w-full transition-colors shadow-md">
             Bayar Pesanan Sekarang
             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
         </button>
@@ -76,35 +76,30 @@
     @if($order->payment_method === 'qris' && $order->payment_status !== 'paid' && $order->payment_url)
         function triggerSnap() {
             const url = "{{ $order->payment_url }}";
-            const snapToken = url.split('/').pop().split('?')[0]; // Ambil token murni
+            const snapToken = url.split('/').pop().split('?')[0]; 
             
-            if (snapToken) {
+            if (snapToken && window.snap) {
                 window.snap.pay(snapToken, {
-                    onSuccess: function(result) {
-                        window.location.reload();
-                    },
-                    onPending: function(result) {
-                        window.location.reload();
-                    },
-                    onError: function(result) {
-                        alert("Terjadi kesalahan saat memproses pembayaran.");
-                    },
-                    onClose: function() {
-                        console.log('Customer closed the popup');
-                    }
+                    onSuccess: function(result) { window.location.reload(); },
+                    onPending: function(result) { window.location.reload(); },
+                    onError: function(result) { alert("Terjadi kesalahan pembayaran."); },
+                    onClose: function() { console.log('Snap closed'); }
                 });
+            } else {
+                console.error("Snap token not found or Snap.js not loaded");
             }
         }
 
-        window.addEventListener('load', function() {
-            triggerSnap();
+        // Auto open on load
+        document.addEventListener('DOMContentLoaded', function() {
+            // Give a tiny delay to ensure script is ready
+            setTimeout(triggerSnap, 1000);
             
             const payButton = document.getElementById('pay-button');
             if(payButton) {
-                payButton.addEventListener('click', function(e) {
-                    e.preventDefault();
+                payButton.onclick = function() {
                     triggerSnap();
-                });
+                };
             }
         });
     @endif
