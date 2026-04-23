@@ -25,6 +25,7 @@ Route::prefix('admin')->middleware(['auth', 'verified'])->group(function() {
     Route::resource('menus', MenuController::class)->names('admin.menus')->except(['create', 'show', 'edit']);
     
     Route::get('/orders/history', [OrderController::class, 'report'])->name('admin.orders.report');
+    Route::get('/orders/export', [OrderController::class, 'exportReport'])->name('admin.orders.report.export');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('admin.orders.show');
     Route::get('/orders', [OrderController::class, 'index'])->name('admin.orders.index');
     Route::put('/orders/{order}/items', [OrderController::class, 'updateItem'])->name('admin.orders.update-item');

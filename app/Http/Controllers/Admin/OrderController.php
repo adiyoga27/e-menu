@@ -80,7 +80,8 @@ class OrderController extends Controller
         $startDate = $request->start_date ? \Carbon\Carbon::parse($request->start_date) : now()->startOfMonth();
         $endDate = $request->end_date ? \Carbon\Carbon::parse($request->end_date) : now()->endOfDay();
 
-        $query = Order::where('status', 'completed')
+        $query = Order::with('items')
+            ->where('status', 'completed')
             ->whereBetween('created_at', [$startDate, $endDate]);
 
         $orders = (clone $query)->latest()->get();
@@ -96,10 +97,66 @@ class OrderController extends Controller
             return (object) [
                 'date' => $date,
                 'total_orders' => $dayOrders->count(),
-                'total_revenue' => $dayOrders->where('payment_status', 'paid')->sum('total_amount')
+                'total_revenue' => $dayOrders->where('payment_status', 'paid')->sum('total_amount'),
+                'orders' => $dayOrders // Include orders for detail display
             ];
         })->values();
 
         return view('admin.orders.report', compact('orders', 'startDate', 'endDate', 'summary', 'dailyStats'));
+    }
+
+    public function exportReport(Request $request)
+    {
+        $startDate = $request->start_date ? \Carbon\Carbon::parse($request->start_date) : now()->startOfMonth();
+        $endDate = $request->end_date ? \Carbon\Carbon::parse($request->end_date) : now()->endOfDay();
+
+        $orders = Order::with('items')
+            ->where('status', 'completed')
+            ->whereBetween('created_at', [$startDate, $endDate])
+            ->latest()
+            ->get();
+
+        $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+        $sheet = $spreadsheet->getActiveSheet();
+        $sheet->setTitle('Laporan Penjualan');
+
+        // Headers
+        $headers = ['No', 'Tanggal', 'No. Pesanan', 'Nama Pelanggan', 'Item', 'Total Tagihan', 'Metode Bayar', 'Status Bayar'];
+        $column = 'A';
+        foreach ($headers as $header) {
+            $sheet->setCellValue($column . '1', $header);
+            $sheet->getStyle($column . '1')->getFont()->setBold(true);
+            $column++;
+        }
+
+        $row = 2;
+        foreach ($orders as $index => $order) {
+            $items = $order->items->map(function($item) {
+                return $item->menu_name . ' (' . $item->quantity . 'x)';
+            })->implode(', ');
+
+            $sheet->setCellValue('A' . $row, $index + 1);
+            $sheet->setCellValue('B' . $row, $order->created_at->format('Y-m-d H:i'));
+            $sheet->setCellValue('C' . $row, $order->order_number);
+            $sheet->setCellValue('D' . $row, $order->customer_name);
+            $sheet->setCellValue('E' . $row, $items);
+            $sheet->setCellValue('F' . $row, $order->total_amount);
+            $sheet->setCellValue('G' . $row, strtoupper($order->payment_method));
+            $sheet->setCellValue('H' . $row, strtoupper($order->payment_status));
+            $row++;
+        }
+
+        // Auto width for columns A to H
+        foreach (range('A', 'H') as $col) {
+            $sheet->getColumnDimension($col)->setAutoSize(true);
+        }
+
+        $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+        $fileName = 'Laporan_Penjualan_' . $startDate->format('Ymd') . '_' . $endDate->format('Ymd') . '.xlsx';
+        
+        header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+        header('Content-Disposition: attachment; filename="'. $fileName .'"');
+        $writer->save('php://output');
+        exit;
     }
 }
