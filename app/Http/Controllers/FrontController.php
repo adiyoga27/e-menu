@@ -71,6 +71,9 @@ class FrontController extends Controller
                 OrderItem::create([
                     'order_id' => $order->id,
                     'menu_id' => $menu->id,
+                    'menu_name' => $menu->name,
+                    'category_name' => $menu->category->name ?? '-',
+                    'image' => $menu->image,
                     'quantity' => $item['qty'],
                     'price' => $menu->price,
                     'subtotal' => $menu->price * $item['qty'],

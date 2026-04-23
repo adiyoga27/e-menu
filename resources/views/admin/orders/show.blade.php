@@ -41,8 +41,24 @@
                                 @foreach($order->items as $item)
                                 <tr>
                                     <td class="px-4 py-3">
-                                        <div class="fw-bold text-dark">{{ $item->menu_name }}</div>
-                                        <div class="small text-muted">{{ $item->category_name }}</div>
+                                        <div class="d-flex align-items-center gap-3">
+                                            @if($item->image)
+                                                <img src="{{ asset('storage/' . $item->image) }}" alt="{{ $item->menu_name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                            @elseif($item->menu && $item->menu->image)
+                                                <img src="{{ asset('storage/' . $item->menu->image) }}" alt="{{ $item->menu->name }}" class="rounded-3" style="width: 48px; height: 48px; object-fit: cover;">
+                                            @else
+                                                <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-muted" style="width: 48px; height: 48px;">
+                                                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-image" viewBox="0 0 16 16">
+                                                        <path d="M6.002 5.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0z"/>
+                                                        <path d="M2.002 1a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3a2 2 0 0 0-2-2h-12zm12 1a1 1 0 0 1 1 1v6.5l-3.777-1.947a.5.5 0 0 0-.577.093l-3.71 3.71-2.66-1.772a.5.5 0 0 0-.63.062L1.002 12V3a1 1 0 0 1 1-1h12z"/>
+                                                    </svg>
+                                                </div>
+                                            @endif
+                                            <div>
+                                                <div class="fw-bold text-dark">{{ $item->menu_name ?? ($item->menu->name ?? 'Menu tidak ditemukan') }}</div>
+                                                <div class="small text-muted">{{ $item->category_name ?? ($item->menu->category->name ?? '-') }}</div>
+                                            </div>
+                                        </div>
                                     </td>
                                     <td class="px-4 py-3 text-center text-muted">Rp {{ number_format($item->price, 0, ',', '.') }}</td>
                                     <td class="px-4 py-3 text-center">
