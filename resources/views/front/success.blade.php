@@ -4,7 +4,7 @@
     @if($order->payment_method === 'qris' && $order->payment_status !== 'paid')
         <script type="text/javascript"
                 src="https://app.midtrans.com/snap/snap.js"
-                data-client-key="{{ env('MIDTRANS_CLIENT_KEY') }}"></script>
+                data-client-key="{{ config('app.midtrans.client_key') }}"></script>
     @endif
 @endsection
 
