@@ -57,34 +57,37 @@ class PaymentController extends Controller
             \Illuminate\Support\Facades\Log::info('Midtrans Webhook Received: ', $request->all());
             $notification = new \Midtrans\Notification();
 
-            $transaction = $notification->transaction_status;
-            $type = $notification->payment_type;
-            $orderId = $notification->order_id;
-            $fraud = $notification->fraud_status;
+            $transaction = $notification->transaction_status ?? null;
+            $type = $notification->payment_type ?? null;
+            $orderId = $notification->order_id ?? null;
+            $fraud = $notification->fraud_status ?? null;
+
+            if (!$orderId) {
+                return response()->json(['message' => 'Notification received, but no order ID found'], 200);
+            }
 
             $order = Order::where('order_number', $orderId)->first();
 
             if (!$order) {
-                return response()->json(['message' => 'Order not found'], 404);
+                return response()->json(['message' => 'Order not found, but acknowledged'], 200);
             }
 
             if ($transaction == 'capture') {
                 if ($fraud == 'challenge') {
-                    // $order->update(['payment_status' => 'challenge']); // Handle challenge if needed
+                    // $order->update(['payment_status' => 'challenge']);
                 } else if ($fraud == 'accept') {
                     $order->update(['payment_status' => 'paid']);
                 }
             } else if ($transaction == 'settlement') {
                 $order->update(['payment_status' => 'paid']);
-            } else if ($transaction == 'pending') {
-                // $order->update(['payment_status' => 'pending']);
             } else if ($transaction == 'deny' || $transaction == 'expire' || $transaction == 'cancel') {
                 $order->update(['payment_status' => 'unpaid']);
             }
 
             return response()->json(['message' => 'Webhook processed successfully']);
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
+            \Illuminate\Support\Facades\Log::error('Midtrans Webhook Error: ' . $e->getMessage());
+            return response()->json(['message' => 'Acknowledged with error: ' . $e->getMessage()], 200);
         }
     }
 }
