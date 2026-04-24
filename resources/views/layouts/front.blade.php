@@ -25,6 +25,18 @@
 
         <!-- Main Content -->
         <main class="w-full relative z-0 px-4 sm:px-6">
+            @if(session('success'))
+                <div class="max-w-md mx-auto mb-4 p-4 bg-green-100 text-green-700 rounded-xl border border-green-200">
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if(session('error'))
+                <div class="max-w-md mx-auto mb-4 p-4 bg-red-100 text-red-700 rounded-xl border border-red-200">
+                    {{ session('error') }}
+                </div>
+            @endif
+
             @yield('content')
         </main>
     </div>

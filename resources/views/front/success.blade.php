@@ -2,8 +2,9 @@
 
 @section('header')
     @if($order->payment_method === 'qris' && $order->payment_status !== 'paid')
+        @php $isProduction = config('app.midtrans.is_production'); @endphp
         <script type="text/javascript"
-                src="https://app.midtrans.com/snap/snap.js"
+                src="https://app.{{ $isProduction ? '' : 'sandbox.' }}midtrans.com/snap/snap.js"
                 data-client-key="{{ config('app.midtrans.client_key') }}"></script>
     @endif
 @endsection

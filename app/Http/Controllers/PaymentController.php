@@ -35,14 +35,17 @@ class PaymentController extends Controller
         );
 
         try {
-            $paymentUrl = \Midtrans\Snap::createTransaction($params)->redirect_url;
+            $snapToken = \Midtrans\Snap::getSnapToken($params);
             
+            // We use payment_url to store the token for now since we don't have snap_token field
+            // Or better, we can just redirect to success with the token in session or similar
             $order->update([
-                'payment_url' => $paymentUrl
+                'payment_url' => 'https://app.midtrans.com/snap/v2/vtweb/' . $snapToken
             ]);
             
-            return redirect()->away($paymentUrl);
+            return redirect()->route('front.success', $order->id);
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Midtrans Snap Error: ' . $e->getMessage());
             return redirect()->route('front.success', $order->id)->with('error', 'Gagal memproses pembayaran: ' . $e->getMessage());
         }
     }
