@@ -81,7 +81,7 @@ class PaymentController extends Controller
                 $order->update(['payment_status' => 'unpaid']);
             }
 
-            return response()->json(['message' => 'Wahbook processed successfully']);
+            return response()->json(['message' => 'Webhook processed successfully']);
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error: ' . $e->getMessage()], 500);
         }
