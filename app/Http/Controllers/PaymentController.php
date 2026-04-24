@@ -54,6 +54,7 @@ class PaymentController extends Controller
         \Midtrans\Config::$isProduction = env('MIDTRANS_IS_PRODUCTION', false);
 
         try {
+            \Illuminate\Support\Facades\Log::info('Midtrans Webhook Received: ', $request->all());
             $notification = new \Midtrans\Notification();
 
             $transaction = $notification->transaction_status;
